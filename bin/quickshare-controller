@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
+TARGET_BIN="${PLUGIN_ROOT}/controller/target/release/quickshare-controller"
+
+if [[ -x "${TARGET_BIN}" ]]; then
+  exec "${TARGET_BIN}" "$@"
+fi
+
+if command -v quickshare-controller &>/dev/null; then
+  exec quickshare-controller "$@"
+fi
+
+echo "quickshare-controller binary not found. Build it in ${PLUGIN_ROOT}/controller or install to PATH." >&2
+exit 1

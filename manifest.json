@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "omarchy-quickshare",
+  "name": "Quick Share",
+  "version": "0.1.0",
+  "author": "Tiago Vicente",
+  "license": "MIT",
+  "description": "Android Quick Share integration for the Omarchy status bar and shell.",
+  "kinds": [
+    "service",
+    "bar-widget"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "service/Receiver.qml",
+    "barWidget": "widget/QuickShareBar.qml"
+  },
+  "barWidget": {
+    "displayName": "Quick Share",
+    "description": "Quick Share receiver with device discovery, file sending, and transfer progress.",
+    "category": "Files",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

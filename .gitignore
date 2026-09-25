@@ -1,0 +1,20 @@
+# Rust build output
+target/
+Cargo.lock
+
+# Runtime sockets & state
+*.sock
+*.pid
+.state/
+
+# Cache & temporary files
+.cache/
+dist/
+*.log
+
+# Editor & OS files
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
