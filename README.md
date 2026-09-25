@@ -18,7 +18,7 @@ omarchy plugin add https://github.com/tiagovicente2/omarchy-quickshare.git --ena
 To enable the bar widget manually if needed:
 
 ```bash
-omarchy bar add omarchy-quickshare --section right
+omarchy plugin enable omarchy-quickshare --section right
 ```
 
 ## Documentation
