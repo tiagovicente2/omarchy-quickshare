@@ -287,9 +287,9 @@ Panel {
                   DecisionButton {
                     width: (parent.width - parent.spacing) / 2
                     label: "Accept"
-                    textColor: "#ffffff"
-                    fillColor: "#22c55e"
-                    borderColor: "#16a34a"
+                    textColor: "#22c55e"
+                    fillColor: Qt.rgba(0.13, 0.77, 0.37, 0.14)
+                    borderColor: "#22c55e"
                     onClicked: {
                       if (quickshare && quickshare.incoming) {
                         quickshare.acceptRequest(quickshare.incoming.id)
