@@ -115,10 +115,11 @@ Panel {
             trailingControl: Component {
               ToggleSwitch {
                 id: powerSwitch
-                checked: quickshare && quickshare.ready
+                readonly property var qs: bar?.shell?.serviceFor("omarchy-quickshare")
+                checked: qs && qs.ready
                 onToggled: {
-                  if (quickshare && quickshare.ready) quickshare.stopDaemon()
-                  else if (quickshare) quickshare.startDaemon()
+                  if (qs && qs.ready) qs.stopDaemon()
+                  else if (qs) qs.startDaemon()
                 }
               }
             }

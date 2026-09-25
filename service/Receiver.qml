@@ -153,8 +153,23 @@ Item {
     }
   }
 
+  property bool _intentionalStop: false
+
+  function scheduleRestart() {
+    if (_intentionalStop || controllerPath === "") return
+    restartTimer.restart()
+  }
+
+  Timer {
+    id: restartTimer
+    interval: 800
+    repeat: false
+    onTriggered: root.startDaemon()
+  }
+
   function startDaemon() {
     if (controllerPath === "" || daemonProcess.running) return
+    _intentionalStop = false
     ready = false
     phase = "starting"
     daemonProcess.command = ["setpriv", "--pdeathsig", "TERM", controllerPath, "daemon"]
@@ -162,6 +177,7 @@ Item {
   }
 
   function stopDaemon() {
+    _intentionalStop = true
     if (daemonProcess.running) {
       daemonProcess.running = false
     }
@@ -267,6 +283,9 @@ Item {
     onExited: (code, status) => {
       root.ready = false
       root.phase = "stopped"
+      if (!root._intentionalStop) {
+        root.scheduleRestart()
+      }
     }
   }
 
