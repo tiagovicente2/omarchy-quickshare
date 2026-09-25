@@ -274,7 +274,9 @@ Panel {
                   DecisionButton {
                     width: (parent.width - parent.spacing) / 2
                     label: "Decline"
-                    foreground: "#ef4444"
+                    textColor: "#ef4444"
+                    fillColor: Qt.rgba(0.9, 0.2, 0.2, 0.14)
+                    borderColor: "#ef4444"
                     onClicked: {
                       if (quickshare && quickshare.incoming) {
                         quickshare.declineRequest(quickshare.incoming.id)
@@ -285,8 +287,9 @@ Panel {
                   DecisionButton {
                     width: (parent.width - parent.spacing) / 2
                     label: "Accept"
-                    foreground: Color.accent
-                    filled: true
+                    textColor: "#ffffff"
+                    fillColor: "#22c55e"
+                    borderColor: "#16a34a"
                     onClicked: {
                       if (quickshare && quickshare.incoming) {
                         quickshare.acceptRequest(quickshare.incoming.id)
@@ -613,20 +616,25 @@ Panel {
 
     property string label: ""
     property color foreground: root.foreground
+    property color textColor: foreground
+    property color fillColor: "transparent"
+    property color borderColor: foreground
     property bool filled: false
     signal clicked()
 
     implicitHeight: Style.space(34)
-    color: filled
-      ? (mouse.containsMouse ? Style.focusFillFor(foreground, Color.accent) : Style.selectedFillFor(foreground, Color.accent))
-      : (mouse.containsMouse ? Style.hoverFillFor(foreground, Color.accent) : "transparent")
-    borderSpec: Border.controlSpec(mouse.containsMouse ? "hover-cursor" : "normal", foreground, Color.accent)
+    color: fillColor !== "transparent"
+      ? (mouse.containsMouse ? Qt.darker(fillColor, 1.15) : fillColor)
+      : (filled
+          ? (mouse.containsMouse ? Style.focusFillFor(foreground, Color.accent) : Style.selectedFillFor(foreground, Color.accent))
+          : (mouse.containsMouse ? Style.hoverFillFor(foreground, Color.accent) : "transparent"))
+    borderSpec: Border.flat(borderColor, 1)
     radius: Style.cornerRadius
 
     Text {
       anchors.centerIn: parent
       text: decision.label
-      color: decision.foreground
+      color: decision.textColor
       font.family: root.fontFamily
       font.pixelSize: Style.font.bodySmall
       font.bold: true

@@ -313,6 +313,13 @@ async fn run_daemon(
                         println!(
                             "{}",
                             json!({
+                                "event": "incoming",
+                                "data": null
+                            })
+                        );
+                        println!(
+                            "{}",
+                            json!({
                                 "event": "transfers",
                                 "data": []
                             })
@@ -321,6 +328,13 @@ async fn run_daemon(
                     State::Rejected | State::Cancelled | State::Disconnected => {
                         s.active_incoming = None;
                         s.transfers.remove(&msg.id);
+                        println!(
+                            "{}",
+                            json!({
+                                "event": "incoming",
+                                "data": null
+                            })
+                        );
                         println!(
                             "{}",
                             json!({

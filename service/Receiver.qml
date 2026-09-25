@@ -277,7 +277,7 @@ Item {
 
     stderr: SplitParser {
       onRead: text => {
-        // Rust stderr debug logging
+        console.warn("quickshare-controller:", text)
       }
     }
 
