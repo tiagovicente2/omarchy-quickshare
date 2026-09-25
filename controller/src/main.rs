@@ -237,16 +237,31 @@ async fn run_daemon(
             if let Some(state_variant) = &msg.state {
                 match state_variant {
                     State::WaitingForUserConsent => {
+                        let dev_name = msg.meta.as_ref().and_then(|m| m.source.as_ref().map(|d| d.name.clone()));
                         let prompt = IncomingPrompt {
                             id: msg.id.clone(),
                             pin: msg.meta.as_ref().and_then(|m| m.pin_code.clone()),
-                            device: msg.meta.as_ref().and_then(|m| m.source.as_ref().map(|d| d.name.clone())),
+                            device: dev_name.clone(),
                             files: msg.meta.as_ref().and_then(|m| m.files.clone()),
                             text_payload: msg.meta.as_ref().and_then(|m| m.text_payload.clone()),
                             text_description: msg.meta.as_ref().and_then(|m| m.text_description.clone()),
                             total_bytes: msg.meta.as_ref().map(|m| m.total_bytes).unwrap_or(0),
                         };
                         s.active_incoming = Some(prompt.clone());
+
+                        if let Some(name) = dev_name {
+                            let ei = EndpointInfo {
+                                fullname: String::new(),
+                                id: msg.id.clone(),
+                                name: Some(name),
+                                ip: None,
+                                port: None,
+                                rtype: Some(rqs_lib::DeviceType::Phone),
+                                present: Some(true),
+                            };
+                            s.devices.insert(msg.id.clone(), ei);
+                        }
+
                         println!(
                             "{}",
                             json!({
@@ -325,7 +340,7 @@ async fn run_daemon(
     tokio::spawn(async move {
         while let Ok(endpoint) = discovery_rx.recv().await {
             let mut s = state_disc.lock().await;
-            if endpoint.present.unwrap_or(true) {
+            if endpoint.present == Some(true) && endpoint.name.is_some() {
                 s.devices.insert(endpoint.id.clone(), endpoint);
             } else {
                 s.devices.remove(&endpoint.id);

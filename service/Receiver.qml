@@ -54,8 +54,8 @@ Item {
   }
 
   function notifyIncoming(request) {
-    var id = String(request.id || "")
-    if (id === "" || _notifiedRequests[id]) return
+    var id = String(request.id || "") + "_" + String(request.pin || "")
+    if (id === "_" || _notifiedRequests[id]) return
     var next = ({})
     for (var key in _notifiedRequests) next[key] = _notifiedRequests[key]
     next[id] = true
@@ -63,19 +63,23 @@ Item {
 
     var sender = String(request.device || "Android device")
     var pin = String(request.pin || "")
+    var desc = request.text_description ? String(request.text_description) : (request.text_payload ? "Text snippet" : "")
     var count = request.files instanceof Array ? request.files.length : 0
+    var detail = desc !== "" ? desc : (count + (count === 1 ? " file" : " files") + " (" + formatBytes(request.total_bytes) + ")")
     var headline = "Quick Share · PIN " + (pin !== "" ? pin : "----")
-    var body = sender + " wants to send " + count + (count === 1 ? " file" : " files") + " (" + formatBytes(request.total_bytes) + "). Click to Accept."
+    var body = sender + " wants to send " + detail
 
     Quickshell.execDetached([
-      "omarchy-notification-send",
-      "--app-name", "Quick Share",
-      "--urgency", "critical",
-      "-g", "󰄜",
-      "--exec", "omarchy-shell -q shell summon omarchy-quickshare",
+      "notify-send",
+      "-a", "Quick Share",
+      "-u", "critical",
+      "-i", "preferences-system-network-sharing",
       headline,
       body
     ])
+
+    // Summon the popup panel so the user sees the Accept/Decline buttons right away
+    Quickshell.execDetached(["omarchy-shell", "-q", "shell", "summon", "omarchy-quickshare"])
   }
 
   function acceptRequest(id) {

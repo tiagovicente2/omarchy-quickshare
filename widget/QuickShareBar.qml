@@ -185,8 +185,8 @@ Panel {
             BorderSurface {
               width: parent.width
               implicitHeight: incomingContent.implicitHeight + Style.space(24)
-              color: Style.selectedFillFor(root.urgent, root.urgent)
-              borderSpec: Border.flat(root.urgent, 1)
+              color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.12)
+              borderSpec: Border.flat(Color.accent, 1)
               radius: Style.cornerRadius
 
               Column {
@@ -196,7 +196,7 @@ Panel {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: Style.space(12)
                 anchors.rightMargin: Style.space(12)
-                spacing: Style.space(8)
+                spacing: Style.space(10)
 
                 RowLayout {
                   width: parent.width
@@ -204,7 +204,7 @@ Panel {
 
                   Text {
                     text: "󰄜"
-                    color: root.urgent
+                    color: Color.accent
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.heading
                   }
@@ -216,7 +216,7 @@ Panel {
                     Text {
                       Layout.fillWidth: true
                       text: quickshare && quickshare.incoming ? String(quickshare.incoming.device || "Android device") : ""
-                      color: root.foreground
+                      color: Color.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.heading
                       font.bold: true
@@ -228,10 +228,13 @@ Panel {
                       text: {
                         if (!quickshare || !quickshare.incoming) return ""
                         var inc = quickshare.incoming
-                        if (inc.text_payload) return "Wants to share clipboard text"
+                        if (inc.text_description) return "Text: " + String(inc.text_description)
+                        if (inc.text_payload) return "Text: " + (String(inc.text_payload).length > 35 ? String(inc.text_payload).substring(0, 32) + "..." : String(inc.text_payload))
                         var count = inc.files instanceof Array ? inc.files.length : 0
                         return count + (count === 1 ? " file" : " files") + " (" + quickshare.formatBytes(inc.total_bytes) + ")"
                       }
+                      color: Color.foreground
+                      opacity: 0.8
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.caption
                     }
@@ -239,18 +242,18 @@ Panel {
 
                   // PIN Badge
                   Rectangle {
-                    color: Qt.darker(root.urgent, 2.2)
-                    border.color: root.urgent
+                    color: Qt.rgba(Color.accent.r, Color.accent.g, Color.accent.b, 0.20)
+                    border.color: Color.accent
                     border.width: 1
                     radius: Style.cornerRadius
-                    implicitWidth: pinText.implicitWidth + Style.space(14)
-                    implicitHeight: pinText.implicitHeight + Style.space(6)
+                    implicitWidth: pinText.implicitWidth + Style.space(16)
+                    implicitHeight: pinText.implicitHeight + Style.space(8)
 
                     Text {
                       id: pinText
                       anchors.centerIn: parent
                       text: quickshare && quickshare.incoming ? String(quickshare.incoming.pin || "") : ""
-                      color: root.foreground
+                      color: Color.accent
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.heading
                       font.bold: true
@@ -265,7 +268,7 @@ Panel {
                   DecisionButton {
                     width: (parent.width - parent.spacing) / 2
                     label: "Decline"
-                    foreground: root.urgent
+                    foreground: "#ef4444"
                     onClicked: {
                       if (quickshare && quickshare.incoming) {
                         quickshare.declineRequest(quickshare.incoming.id)
@@ -276,7 +279,7 @@ Panel {
                   DecisionButton {
                     width: (parent.width - parent.spacing) / 2
                     label: "Accept"
-                    foreground: root.foreground
+                    foreground: Color.accent
                     filled: true
                     onClicked: {
                       if (quickshare && quickshare.incoming) {
@@ -441,7 +444,9 @@ Panel {
 
                     Text {
                       Layout.fillWidth: true
-                      text: String(modelData.name || modelData.id || "Android device")
+                      text: (modelData.name && String(modelData.name).trim() !== "" && String(modelData.name).indexOf(":") === -1)
+                        ? String(modelData.name)
+                        : (quickshare && quickshare.incoming && quickshare.incoming.device ? String(quickshare.incoming.device) : "Android device")
                       color: root.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.body
