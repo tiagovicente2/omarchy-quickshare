@@ -21,7 +21,7 @@ Panel {
 
   readonly property color barIconColor: quickshare && quickshare.incoming
     ? urgent
-    : (quickshare && quickshare.ready ? (bar ? bar.barForeground : Color.foreground) : Qt.darker(Color.foreground, 1.8))
+    : (quickshare && quickshare.ready ? foreground : dim)
 
   readonly property var nearbyDevices: {
     var list = []
@@ -44,6 +44,9 @@ Panel {
     function close(): void { root.close() }
     function toggle(): void { root.toggle() }
   }
+  implicitWidth: button.implicitWidth
+  implicitHeight: button.implicitHeight
+
 
   BarIconButton {
     id: button
