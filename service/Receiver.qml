@@ -268,6 +268,7 @@ Item {
               ])
             }
             root.recentReceived = list.slice(0, 10)
+          }
         } catch (e) {
           // ignore non-JSON debug lines
         }
