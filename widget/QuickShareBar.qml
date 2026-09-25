@@ -27,10 +27,16 @@ Panel {
 
   readonly property var nearbyDevices: {
     var list = []
+    var seen = ({})
     if (!quickshare || !(quickshare.devices instanceof Array)) return list
     for (var i = 0; i < quickshare.devices.length; i++) {
       var d = quickshare.devices[i]
-      if (d) list.push(d)
+      if (!d) continue
+      var name = String(d.name || "").trim()
+      if (name === "" || name.indexOf(":") !== -1) continue
+      if (seen[name]) continue
+      seen[name] = true
+      list.push(d)
     }
     return list
   }

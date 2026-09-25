@@ -70,17 +70,14 @@ Item {
     var body = sender + " wants to send " + detail
 
     Quickshell.execDetached([
-      "notify-send",
-      "-a", "Quick Share",
-      "-u", "critical",
-      "-i", "preferences-system-network-sharing",
+      "omarchy-notification-send",
+      "--app-name", "Quick Share",
+      "--urgency", "critical",
+      "-g", "󰄜",
+      "--exec", "omarchy-shell -q shell summon omarchy-quickshare",
       headline,
-      body
+      body + ". Click to open and Accept."
     ])
-
-    // Summon the popup panel so the user sees the Accept/Decline buttons right away
-    Quickshell.execDetached(["omarchy-shell", "-q", "shell", "summon", "omarchy-quickshare"])
-  }
 
   function acceptRequest(id) {
     if (!id) return

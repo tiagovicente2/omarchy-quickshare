@@ -252,14 +252,14 @@ async fn run_daemon(
                         if let Some(name) = dev_name {
                             let ei = EndpointInfo {
                                 fullname: String::new(),
-                                id: msg.id.clone(),
-                                name: Some(name),
+                                id: name.clone(),
+                                name: Some(name.clone()),
                                 ip: None,
                                 port: None,
                                 rtype: Some(rqs_lib::DeviceType::Phone),
                                 present: Some(true),
                             };
-                            s.devices.insert(msg.id.clone(), ei);
+                            s.devices.insert(name, ei);
                         }
 
                         println!(
