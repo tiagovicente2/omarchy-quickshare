@@ -109,7 +109,6 @@ Item {
     running: false
 
     stdout: SplitParser {
-      split: "\n"
       onRead: text => {
         var line = text.trim()
         if (line.length === 0) return
@@ -152,7 +151,6 @@ Item {
     }
 
     stderr: SplitParser {
-      split: "\n"
       onRead: text => {
         // Rust stderr debug logging
       }
