@@ -227,10 +227,10 @@ Panel {
                       text: {
                         if (!quickshare || !quickshare.incoming) return ""
                         var inc = quickshare.incoming
+                        if (inc.text_payload) return "Wants to share clipboard text"
                         var count = inc.files instanceof Array ? inc.files.length : 0
                         return count + (count === 1 ? " file" : " files") + " (" + quickshare.formatBytes(inc.total_bytes) + ")"
                       }
-                      color: root.dim
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.caption
                     }
@@ -518,8 +518,8 @@ Panel {
                   spacing: Style.space(8)
 
                   Text {
-                    text: "󰈔"
-                    color: root.dim
+                    text: modelData.isText ? "󰅇" : "󰈔"
+                    color: modelData.isText ? Color.accent : root.dim
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.body
                   }

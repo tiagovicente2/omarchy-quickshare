@@ -81,21 +81,6 @@ Item {
   function acceptRequest(id) {
     if (!id) return
     Quickshell.execDetached([controllerPath, "accept", "--request-id", String(id)])
-    if (incoming) {
-      var list = recentReceived ? recentReceived.slice(0) : []
-      var files = incoming.files instanceof Array && incoming.files.length > 0 ? incoming.files : ["Received file"]
-      var sender = String(incoming.device || "Android device")
-      var bytes = incoming.total_bytes
-      for (var i = 0; i < files.length; i++) {
-        list.unshift({
-          name: String(files[i]),
-          device: sender,
-          bytes: bytes,
-          time: "Just now"
-        })
-      }
-      recentReceived = list.slice(0, 10)
-    }
     incoming = null
   }
 
@@ -224,6 +209,49 @@ Item {
               root.incoming = null
             }
           }
+          else if (msg.event === "finished") {
+            var data = msg.data || {}
+            var list = root.recentReceived ? root.recentReceived.slice(0) : []
+            if (data.text_payload) {
+              var textPayload = String(data.text_payload)
+              Quickshell.execDetached(["wl-copy", textPayload])
+              list.unshift({
+                name: textPayload,
+                isText: true,
+                device: String(data.device || "Android device"),
+                bytes: data.bytes || 0,
+                time: "Just now"
+              })
+              Quickshell.execDetached([
+                "omarchy-notification-send",
+                "--app-name", "Quick Share",
+                "--urgency", "normal",
+                "-g", "󰅇",
+                "Copied text to clipboard",
+                textPayload.length > 60 ? textPayload.substring(0, 57) + "..." : textPayload
+              ])
+            } else if (data.files && data.files.length > 0) {
+              for (var f = 0; f < data.files.length; f++) {
+                list.unshift({
+                  name: String(data.files[f]),
+                  isText: false,
+                  device: String(data.device || "Android device"),
+                  bytes: data.bytes || 0,
+                  time: "Just now"
+                })
+              }
+              var fileName = String(data.files[0])
+              Quickshell.execDetached([
+                "omarchy-notification-send",
+                "--app-name", "Quick Share",
+                "--urgency", "normal",
+                "-g", "󰈔",
+                "--exec", "xdg-open " + (Quickshell.env("HOME") || "") + "/Downloads",
+                "Received file",
+                "Saved " + fileName + " to ~/Downloads"
+              ])
+            }
+            root.recentReceived = list.slice(0, 10)
         } catch (e) {
           // ignore non-JSON debug lines
         }

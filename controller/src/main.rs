@@ -103,6 +103,8 @@ struct IncomingPrompt {
     pin: Option<String>,
     device: Option<String>,
     files: Option<Vec<String>>,
+    text_payload: Option<String>,
+    text_description: Option<String>,
     total_bytes: u64,
 }
 
@@ -240,6 +242,8 @@ async fn run_daemon(
                             pin: msg.meta.as_ref().and_then(|m| m.pin_code.clone()),
                             device: msg.meta.as_ref().and_then(|m| m.source.as_ref().map(|d| d.name.clone())),
                             files: msg.meta.as_ref().and_then(|m| m.files.clone()),
+                            text_payload: msg.meta.as_ref().and_then(|m| m.text_payload.clone()),
+                            text_description: msg.meta.as_ref().and_then(|m| m.text_description.clone()),
                             total_bytes: msg.meta.as_ref().map(|m| m.total_bytes).unwrap_or(0),
                         };
                         s.active_incoming = Some(prompt.clone());
@@ -270,6 +274,25 @@ async fn run_daemon(
                         );
                     }
                     State::Finished => {
+                        let text = msg.meta.as_ref().and_then(|m| m.text_payload.clone());
+                        let files = msg.meta.as_ref().and_then(|m| m.files.clone());
+                        let device = msg.meta.as_ref().and_then(|m| m.source.as_ref().map(|d| d.name.clone()));
+                        let bytes = msg.meta.as_ref().map(|m| m.total_bytes).unwrap_or(0);
+
+                        println!(
+                            "{}",
+                            json!({
+                                "event": "finished",
+                                "data": {
+                                    "id": msg.id.clone(),
+                                    "text_payload": text,
+                                    "files": files,
+                                    "device": device,
+                                    "bytes": bytes,
+                                }
+                            })
+                        );
+
                         s.active_incoming = None;
                         s.transfers.remove(&msg.id);
                         println!(
