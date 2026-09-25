@@ -9,11 +9,10 @@ Item {
   property var manifest: null
 
   readonly property string sourceDir: {
+    var home = Quickshell.env("HOME") || ""
+    if (home !== "") return home + "/.config/omarchy/plugins/omarchy-quickshare"
     if (manifest && manifest.__sourceDir) return String(manifest.__sourceDir)
-    var here = String(Qt.resolvedUrl(".."))
-    if (here.indexOf("file://") === 0) here = here.substring(7)
-    try { here = decodeURIComponent(here) } catch (e) {}
-    return here.replace(/\/+$/, "")
+    return ""
   }
   readonly property string controllerPath: sourceDir === "" ? "" : sourceDir + "/bin/quickshare-controller"
 
