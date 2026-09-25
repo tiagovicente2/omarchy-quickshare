@@ -22,6 +22,12 @@ Item {
   property var devices: []
   property var incoming: null
   property var transfers: []
+  property var recentReceived: []
+
+  property string payloadKind: ""
+  property var selectedPaths: []
+  property string payloadLabel: ""
+  property string _chooserMode: ""
 
   readonly property int onlineDeviceCount: devices ? devices.length : 0
   readonly property bool hasActiveTransfer: {
@@ -74,6 +80,19 @@ Item {
   function acceptRequest(id) {
     if (!id) return
     Quickshell.execDetached([controllerPath, "accept", "--request-id", String(id)])
+    if (incoming) {
+      var list = recentReceived ? recentReceived.slice(0) : []
+      var files = incoming.files instanceof Array ? incoming.files : ["Received file"]
+      for (var i = 0; i < files.length; i++) {
+        list.unshift({
+          name: String(files[i]),
+          device: String(incoming.device || "Android device"),
+          bytes: incoming.total_bytes,
+          time: "Just now"
+        })
+      }
+      recentReceived = list.slice(0, 10)
+    }
     incoming = null
   }
 
@@ -86,6 +105,64 @@ Item {
   function cancelTransfer(id) {
     if (!id) return
     Quickshell.execDetached([controllerPath, "cancel", "--transfer-id", String(id)])
+  }
+
+  function chooseFiles() {
+    startChooser("files")
+  }
+
+  function chooseFolder() {
+    startChooser("folder")
+  }
+
+  function startChooser(mode) {
+    if (chooserProcess.running) return
+    _chooserMode = mode
+    chooserProcess.command = mode === "folder"
+      ? ["omarchy-file-select", "--title", "Share a folder via Quick Share", "--directory"]
+      : ["omarchy-file-select", "--title", "Share files via Quick Share", "--multiple"]
+    chooserProcess.running = true
+  }
+
+  function chooseClipboard() {
+    payloadKind = "clipboard"
+    selectedPaths = []
+    payloadLabel = "Clipboard content"
+  }
+
+  function clearPayload() {
+    payloadKind = ""
+    selectedPaths = []
+    payloadLabel = ""
+  }
+
+  function finishChooser(exitCode) {
+    if (exitCode !== 0) return
+    var text = String(chooserStdout.text || "").replace(/\r/g, "").trim()
+    if (text === "") return
+    var paths = text.split("\n")
+    if (paths.length === 0) return
+    payloadKind = _chooserMode === "folder" ? "folder" : "files"
+    selectedPaths = paths
+    if (_chooserMode === "folder") {
+      var parts = paths[0].split("/")
+      payloadLabel = "Folder: " + (parts.length > 0 ? parts[parts.length - 1] : paths[0])
+    } else {
+      payloadLabel = paths.length === 1 ? paths[0].split("/").pop() : paths.length + " files selected"
+    }
+    Quickshell.execDetached(["omarchy-shell", "-q", "shell", "summon", "omarchy-quickshare"])
+  }
+
+  Process {
+    id: chooserProcess
+    running: false
+    stdout: StdioCollector {
+      id: chooserStdout
+      waitForEnd: true
+    }
+    onExited: (code, status) => {
+      finishChooser(code)
+    }
   }
 
   function startDaemon() {
