@@ -116,6 +116,13 @@ struct TransferProgress {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    if std::env::var("RUST_LOG").is_err() {
+        std::env::set_var("RUST_LOG", "info,rqs_lib=debug");
+    }
+    let _ = tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .try_init();
+
     let cli = Cli::parse();
     let socket_path = get_socket_path(cli.socket);
 
@@ -182,13 +189,18 @@ async fn run_daemon(
             .and_then(|u| u.download_dir().map(|p| p.to_path_buf()))
             .unwrap_or_else(|| PathBuf::from(std::env::var("HOME").unwrap_or_default()).join("Downloads"))
     });
-
+    let port = port.or(Some(52380));
     let mut rqs = RQS::new(Visibility::Visible, port, Some(download_dir));
     let (_send_channel, _ble_rx) = rqs.run().await.context("Failed to start RQS network service")?;
 
+    // Toggle visibility to guarantee MDnsServer receives a change event and registers mDNS
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    rqs.change_visibility(Visibility::Invisible);
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    rqs.change_visibility(Visibility::Visible);
+
     let (discovery_tx, mut discovery_rx) = broadcast::channel::<EndpointInfo>(32);
     let _ = rqs.discovery(discovery_tx);
-
     let state = Arc::new(Mutex::new(DaemonState::default()));
 
     // Clean up any stale socket file
