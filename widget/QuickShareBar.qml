@@ -478,14 +478,6 @@ Panel {
                 }
               }
             }
-
-            Text {
-              text: "Incoming files save to " + ((Quickshell.env("HOME") || "") + "/Downloads")
-              color: root.dim
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
-              anchors.horizontalCenter: parent.horizontalCenter
-            }
           }
 
           // 6. RECEIVED HISTORY (like Image #1)
