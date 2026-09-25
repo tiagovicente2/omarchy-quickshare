@@ -74,9 +74,18 @@ Item {
       "--app-name", "Quick Share",
       "--urgency", "critical",
       "-g", "󰄜",
-      "--exec", "omarchy-shell -q shell summon omarchy-quickshare",
       headline,
-      body + ". Click to open and Accept."
+      body + ". Click to open and Accept.",
+      "--exec", "omarchy-shell", "-q", "shell", "summon", "omarchy-quickshare"
+    ])
+
+    Quickshell.execDetached([
+      "notify-send",
+      "-a", "Quick Share",
+      "-u", "critical",
+      "-i", "preferences-system-network-sharing",
+      headline,
+      body
     ])
   }
 
@@ -223,9 +232,7 @@ Item {
             root.transfers = list
           } else if (msg.event === "transfers") {
             root.transfers = msg.data || []
-            if (root.transfers.length === 0) {
-              root.incoming = null
-            }
+            // Keep incoming prompt active until explicitly accepted or finished
           }
           else if (msg.event === "finished") {
             var data = msg.data || {}
