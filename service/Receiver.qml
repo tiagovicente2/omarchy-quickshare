@@ -78,6 +78,7 @@ Item {
       headline,
       body + ". Click to open and Accept."
     ])
+  }
 
   function acceptRequest(id) {
     if (!id) return
