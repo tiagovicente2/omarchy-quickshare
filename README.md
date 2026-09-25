@@ -14,6 +14,8 @@ Android Quick Share (formerly Nearby Share) integration for Omarchy. Discovers n
 ```bash
 omarchy plugin add https://github.com/tiagovicente2/omarchy-quickshare.git --enable --yes
 ```
+Rust is not required on target devices. On first use, the launcher automatically downloads and verifies the SHA-256 pinned x86-64 release binary from GitHub Releases.
+
 
 To enable the bar widget manually if needed:
 
