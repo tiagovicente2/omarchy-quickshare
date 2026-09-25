@@ -411,6 +411,8 @@ Panel {
             Repeater {
               model: root.nearbyDevices
               delegate: BorderSurface {
+                required property var modelData
+                required property int index
                 width: parent.width
                 implicitHeight: devRow.implicitHeight + Style.space(16)
                 color: Style.hoverFillFor(root.foreground, Color.accent)
@@ -499,6 +501,8 @@ Panel {
             Repeater {
               model: quickshare ? quickshare.recentReceived : []
               delegate: BorderSurface {
+                required property var modelData
+                required property int index
                 width: parent.width
                 implicitHeight: histRow.implicitHeight + Style.space(12)
                 color: "transparent"

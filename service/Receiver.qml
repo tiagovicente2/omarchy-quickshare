@@ -64,15 +64,16 @@ Item {
     var sender = String(request.device || "Android device")
     var pin = String(request.pin || "")
     var count = request.files instanceof Array ? request.files.length : 0
-    var body = "PIN: " + pin + " · " + count + (count === 1 ? " file" : " files") + " (" + formatBytes(request.total_bytes) + ") from " + sender
+    var headline = "Quick Share · PIN " + (pin !== "" ? pin : "----")
+    var body = sender + " wants to send " + count + (count === 1 ? " file" : " files") + " (" + formatBytes(request.total_bytes) + "). Click to Accept."
 
     Quickshell.execDetached([
       "omarchy-notification-send",
       "--app-name", "Quick Share",
       "--urgency", "critical",
-      "--glyph", "󰄜",
+      "-g", "󰄜",
       "--exec", "omarchy-shell -q shell summon omarchy-quickshare",
-      "Incoming Quick Share Request",
+      headline,
       body
     ])
   }
@@ -82,12 +83,14 @@ Item {
     Quickshell.execDetached([controllerPath, "accept", "--request-id", String(id)])
     if (incoming) {
       var list = recentReceived ? recentReceived.slice(0) : []
-      var files = incoming.files instanceof Array ? incoming.files : ["Received file"]
+      var files = incoming.files instanceof Array && incoming.files.length > 0 ? incoming.files : ["Received file"]
+      var sender = String(incoming.device || "Android device")
+      var bytes = incoming.total_bytes
       for (var i = 0; i < files.length; i++) {
         list.unshift({
           name: String(files[i]),
-          device: String(incoming.device || "Android device"),
-          bytes: incoming.total_bytes,
+          device: sender,
+          bytes: bytes,
           time: "Just now"
         })
       }
