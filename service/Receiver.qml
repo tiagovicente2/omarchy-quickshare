@@ -78,15 +78,6 @@ Item {
       body + ". Click to open and Accept.",
       "--exec", "omarchy-shell", "-q", "shell", "summon", "omarchy-quickshare"
     ])
-
-    Quickshell.execDetached([
-      "notify-send",
-      "-a", "Quick Share",
-      "-u", "critical",
-      "-i", "preferences-system-network-sharing",
-      headline,
-      body
-    ])
   }
 
   function acceptRequest(id) {
